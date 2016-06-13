@@ -30,8 +30,8 @@ type IfStat struct {
 	TxCompressed uint64
 }
 
-// ReadIfStats reads interface statistics for all availabe interfaces, except
-// the one listed in except.
+// ReadIfStats reads interface statistics for all availabe interfaces.
+// It does so by reading from /proc/net/dev.
 func ReadIfStats() ([]IfStat, error) {
 	return readIfStats("/proc/net/dev")
 }
