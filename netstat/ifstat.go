@@ -33,7 +33,11 @@ type IfStat struct {
 // ReadIfStats reads interface statistics for all availabe interfaces, except
 // the one listed in except.
 func ReadIfStats() ([]IfStat, error) {
-	data, err := ioutil.ReadFile("/proc/net/dev")
+	return readIfStats("/proc/net/dev")
+}
+
+func readIfStats(path string) ([]IfStat, error) {
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("readifstats: error reading from /proc/net/dev: %s", err)
 	}
@@ -43,9 +47,12 @@ func ReadIfStats() ([]IfStat, error) {
 func parseStats(data []byte) ([]IfStat, error) {
 	lines := strings.Split(string(data), "\n")
 	lines = lines[2:] // reamove header
-	stats := make([]IfStat, len(lines))
+	stats := make([]IfStat, len(lines)-1)
 
 	for i, line := range lines {
+		if line == "" {
+			break
+		}
 		stat, err := parseLine(line)
 		if err != nil {
 			return nil, fmt.Errorf("readifstats: error parsing line %d: %s", i, err)

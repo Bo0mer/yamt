@@ -2,13 +2,8 @@ package netstat
 
 import "testing"
 
-const procNetDev = `Inter-|   Receive                                                |  Transmit
- face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
-   eth0:15017954683 11623018    1    1    0     0          91283         0 14743413932 23122406    288    289    0     0       0          0
-       lo:  334946    1394    0    0    0     0          1394         0   334946    1394    0    0    0     0       0          1394`
-
 func TestParseStats(t *testing.T) {
-	stats, err := parseStats([]byte(procNetDev))
+	stats, err := readIfStats("testdata/procNetDev")
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}

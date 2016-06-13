@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/bo0mer/yamt/netstat"
+)
 
 func main() {
-	fmt.Println("yamt: hello, world!")
+	fmt.Println(netstat.ReadIfStats())
 }
