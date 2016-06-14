@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
@@ -14,6 +15,8 @@ var (
 	host      string
 	port      int
 	eventHost string
+	interval  int
+	ignoreIfs string
 )
 
 func init() {
@@ -23,6 +26,10 @@ func init() {
 	flag.IntVar(&port, "port", 5555, "Riemann port")
 	flag.StringVar(&eventHost, "e", "", "Event hostname (shorthand)")
 	flag.StringVar(&eventHost, "event-host", "", "Event hostname")
+	flag.IntVar(&interval, "i", 5, "Seconds between updates (shorthand)")
+	flag.IntVar(&interval, "interval", 5, "Seconds between updates")
+	flag.StringVar(&ignoreIfs, "g", "lo", "Interfaces to ignore (shorthand)")
+	flag.StringVar(&ignoreIfs, "ignore-interfaces", "lo", "Interfaces to ignore")
 }
 
 func main() {
@@ -31,11 +38,14 @@ func main() {
 	emitter := riemann.NewEmitter(fmt.Sprintf("%s:%d", host, port),
 		riemann.Host(eventHost))
 
-	re := regexp.MustCompile("lo")
+	re, err := regexp.Compile(ignoreIfs)
+	if err != nil {
+		log.Fatalf("yamt: invalid regular expression: %s\n", err)
+	}
 	r := netstat.NewReporter(emitter,
-		netstat.Interval(time.Second),
+		netstat.Interval(time.Second*time.Duration(interval)),
 		netstat.Except(re))
 	r.Start()
-	time.Sleep(time.Second * 30)
-	r.Close()
+	select {}
+	defer r.Close()
 }
