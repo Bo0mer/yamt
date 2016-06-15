@@ -1,0 +1,22 @@
+{
+	"ImportPath": "github.com/bo0mer/yamt",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/bigdatadev/goryman",
+			"Rev": "55c3cbc3df542201b3c140e72a758d0adae4bc05"
+		},
+		{
+			"ImportPath": "github.com/bigdatadev/goryman/proto",
+			"Rev": "55c3cbc3df542201b3c140e72a758d0adae4bc05"
+		},
+		{
+			"ImportPath": "github.com/golang/protobuf/proto",
+			"Rev": "8616e8ee5e20a1704615e6c8d7afcdac06087a67"
+		}
+	]
+}
