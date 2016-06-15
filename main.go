@@ -4,7 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"regexp"
+	"syscall"
 	"time"
 
 	"github.com/bo0mer/yamt/metric/riemann"
@@ -46,6 +49,11 @@ func main() {
 		netstat.Interval(time.Second*time.Duration(interval)),
 		netstat.Except(re))
 	r.Start()
-	select {}
 	defer r.Close()
+	log.Printf("yamt: started emitting metrics\n")
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	sig := <-c
+	fmt.Printf("yamt: exiting due to %s\n", sig)
 }
