@@ -3,8 +3,9 @@ package netstat
 import (
 	"fmt"
 	"io/ioutil"
-	"strconv"
 	"strings"
+
+	"github.com/bo0mer/yamt/internal"
 )
 
 // IfStat represents statistics about a network interface.
@@ -72,7 +73,7 @@ func parseLine(line string) (IfStat, error) {
 	stat.Name = strings.Replace(line[:colon], " ", "", -1)
 
 	fields := strings.Fields(line[colon+1:])
-	p := errParser{}
+	p := &internal.ErrParser{}
 	stat.RxBytes = p.ParseUint64(fields[0])
 	stat.RxPackets = p.ParseUint64(fields[1])
 	stat.RxErrs = p.ParseUint64(fields[2])
@@ -91,21 +92,9 @@ func parseLine(line string) (IfStat, error) {
 	stat.TxCarrier = p.ParseUint64(fields[14])
 	stat.TxCompressed = p.ParseUint64(fields[15])
 
-	if p.err != nil {
-		return IfStat{}, fmt.Errorf("readifstats: error reading stats for %s: %s", stat.Name, p.err)
+	if err := p.Err(); err != nil {
+		return IfStat{}, fmt.Errorf("readifstats: error reading stats for %s: %s", stat.Name, err)
 	}
 
 	return stat, nil
-}
-
-type errParser struct {
-	err error
-}
-
-func (p errParser) ParseUint64(s string) uint64 {
-	u, err := strconv.ParseUint(s, 10, 64)
-	if err != nil {
-		p.err = err
-	}
-	return u
 }
