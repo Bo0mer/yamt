@@ -68,6 +68,7 @@ func (r *Reporter) readAndReport() {
 			stats, err := ReadIfStats()
 			if err != nil {
 				log.Printf("reporter: error reading stats: %v\n", err)
+				continue
 			}
 			if err := r.report(stats); err != nil {
 				log.Printf("reporter: error reporting stats: %v\n", err)
