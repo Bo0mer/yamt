@@ -1,11 +1,11 @@
 package netstat
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 	"time"
 
+	"github.com/bo0mer/yamt/internal"
 	"github.com/bo0mer/yamt/metric/riemann"
 )
 
@@ -81,6 +81,7 @@ func (r *Reporter) readAndReport() {
 }
 
 func (r *Reporter) report(stats []IfStat) error {
+	rate := internal.RateComputer(r.interval.Seconds())
 	for _, stat := range stats {
 		if r.except != nil && r.except.MatchString(stat.Name) {
 			continue
@@ -90,24 +91,29 @@ func (r *Reporter) report(stats []IfStat) error {
 		if !ok {
 			continue
 		}
-		event := eventBuilder(stat.Name, r.interval)
-		r.emitter.Emit(event(stat.RxBytes-last.RxBytes, "rx.bytes"))
-		r.emitter.Emit(event(stat.RxPackets-last.RxPackets, "rx.packets"))
-		r.emitter.Emit(event(stat.RxErrs-last.RxErrs, "rx.errs"))
-		r.emitter.Emit(event(stat.RxDrop-last.RxDrop, "rx.drop"))
-		r.emitter.Emit(event(stat.RxFIFO-last.RxFIFO, "rx.fifo"))
-		r.emitter.Emit(event(stat.RxFrame-last.RxFrame, "rx.frame"))
-		r.emitter.Emit(event(stat.RxCompressed-last.RxCompressed, "rx.compressed"))
-		r.emitter.Emit(event(stat.RxMulticast-last.RxMulticast, "rx.multicast"))
+		event := func(name string, value float64) riemann.Event {
+			return riemann.Event{
+				Name:  stat.Name + "." + name,
+				Value: value,
+			}
+		}
+		r.emitter.Emit(event("rx.bytes", rate(stat.RxBytes, last.RxBytes)))
+		r.emitter.Emit(event("rx.packets", rate(stat.RxPackets, last.RxPackets)))
+		r.emitter.Emit(event("rx.errs", rate(stat.RxErrs, last.RxErrs)))
+		r.emitter.Emit(event("rx.drop", rate(stat.RxDrop, last.RxDrop)))
+		r.emitter.Emit(event("rx.fifo", rate(stat.RxFIFO, last.RxFIFO)))
+		r.emitter.Emit(event("rx.frame", rate(stat.RxFrame, last.RxFrame)))
+		r.emitter.Emit(event("rx.compressed", rate(stat.RxCompressed, last.RxCompressed)))
+		r.emitter.Emit(event("rx.multicast", rate(stat.RxMulticast, last.RxMulticast)))
 
-		r.emitter.Emit(event(stat.TxBytes-last.TxBytes, "tx.bytes"))
-		r.emitter.Emit(event(stat.TxPackets-last.TxPackets, "tx.packets"))
-		r.emitter.Emit(event(stat.TxErrs-last.TxErrs, "tx.errs"))
-		r.emitter.Emit(event(stat.TxDrop-last.TxDrop, "tx.drop"))
-		r.emitter.Emit(event(stat.TxFIFO-last.TxFIFO, "tx.fifo"))
-		r.emitter.Emit(event(stat.TxColls-last.TxColls, "tx.colls"))
-		r.emitter.Emit(event(stat.TxCarrier-last.TxCarrier, "tx.carrier"))
-		r.emitter.Emit(event(stat.TxCompressed-last.TxCompressed, "tx.compressed"))
+		r.emitter.Emit(event("tx.bytes", rate(stat.TxBytes, last.TxBytes)))
+		r.emitter.Emit(event("tx.packets", rate(stat.TxPackets, last.TxPackets)))
+		r.emitter.Emit(event("tx.errs", rate(stat.TxErrs, last.TxErrs)))
+		r.emitter.Emit(event("tx.drop", rate(stat.TxDrop, last.TxDrop)))
+		r.emitter.Emit(event("tx.fifo", rate(stat.TxFIFO, last.TxFIFO)))
+		r.emitter.Emit(event("tx.colls", rate(stat.TxColls, last.TxColls)))
+		r.emitter.Emit(event("tx.carrier", rate(stat.TxCarrier, last.TxCarrier)))
+		r.emitter.Emit(event("tx.compressed", rate(stat.TxCompressed, last.TxCompressed)))
 	}
 	return r.emitter.Err()
 }
@@ -115,13 +121,4 @@ func (r *Reporter) report(stats []IfStat) error {
 // Close releases all resources allocated by the reporter.
 func (r *Reporter) Close() {
 	close(r.stop)
-}
-
-func eventBuilder(ifName string, interval time.Duration) func(uint64, string) riemann.Event {
-	return func(value uint64, metricName string) riemann.Event {
-		return riemann.Event{
-			Name:  fmt.Sprintf("%s.%s", ifName, metricName),
-			Value: int(value) / int(interval/time.Second),
-		}
-	}
 }
