@@ -4,8 +4,9 @@ import "github.com/bigdatadev/goryman"
 
 // Event repesents riemann metric event.
 type Event struct {
-	Name  string
-	Value int
+	Name string
+	// could be int, float32 or float64
+	Value interface{}
 }
 
 type Option func(e *Emitter)
