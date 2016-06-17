@@ -114,8 +114,12 @@ func (r *Reporter) report(stats []IfStat) error {
 		r.emitter.Emit(event("tx.colls", rate(stat.TxColls, last.TxColls)))
 		r.emitter.Emit(event("tx.carrier", rate(stat.TxCarrier, last.TxCarrier)))
 		r.emitter.Emit(event("tx.compressed", rate(stat.TxCompressed, last.TxCompressed)))
+
+		if err := r.emitter.Err(); err != nil {
+			return err
+		}
 	}
-	return r.emitter.Err()
+	return nil
 }
 
 // Close releases all resources allocated by the reporter.
