@@ -8,6 +8,8 @@ import (
 	"github.com/bo0mer/yamt/internal"
 )
 
+//go:generate counterfeiter . InterfaceStatReader
+
 // IfStat represents statistics about a network interface.
 type IfStat struct {
 	Name string
@@ -31,21 +33,43 @@ type IfStat struct {
 	TxCompressed uint64
 }
 
-// ReadIfStats reads interface statistics for all availabe interfaces.
-// It does so by reading from /proc/net/dev.
-func ReadIfStats() ([]IfStat, error) {
-	return readIfStats("/proc/net/dev")
+// InterfaceStatReader should read statistics for all available network
+// interfaces.
+type InterfaceStatReader interface {
+	ReadStats() ([]IfStat, error)
 }
 
-func readIfStats(path string) ([]IfStat, error) {
-	data, err := ioutil.ReadFile(path)
+// IfStatReader reads statistics for network interfaces.
+type IfStatReader struct {
+	path string
+}
+
+// NewIfStatReader creates IfStatReader that reads from the specified path.
+// It expects well defined format and may cause panics if it is not present.
+func NewIfStatReader(path string) *IfStatReader {
+	return &IfStatReader{
+		path: path,
+	}
+}
+
+// DefaultIfStatReader is the default implementation of InterfaceStatReader.
+// It reads interface statistics from /proc/net/dev.
+var DefaultIfStatReader InterfaceStatReader = NewIfStatReader("/proc/net/dev")
+
+// ReadIfStats is shorthand for DefaultIfStatReader.ReadIfStats.
+func ReadIfStats() ([]IfStat, error) {
+	return DefaultIfStatReader.ReadStats()
+}
+
+func (r *IfStatReader) ReadStats() ([]IfStat, error) {
+	data, err := ioutil.ReadFile(r.path)
 	if err != nil {
 		return nil, fmt.Errorf("readifstats: error reading from /proc/net/dev: %s", err)
 	}
-	return parseStats(data)
+	return r.parseStats(data)
 }
 
-func parseStats(data []byte) ([]IfStat, error) {
+func (r *IfStatReader) parseStats(data []byte) ([]IfStat, error) {
 	lines := strings.Split(string(data), "\n")
 	lines = lines[2:] // reamove header
 	stats := make([]IfStat, len(lines)-1)
@@ -54,7 +78,7 @@ func parseStats(data []byte) ([]IfStat, error) {
 		if line == "" {
 			break
 		}
-		stat, err := parseLine(line)
+		stat, err := r.parseLine(line)
 		if err != nil {
 			return nil, fmt.Errorf("readifstats: error parsing line %d: %s", i, err)
 		}
@@ -63,7 +87,7 @@ func parseStats(data []byte) ([]IfStat, error) {
 	return stats, nil
 }
 
-func parseLine(line string) (IfStat, error) {
+func (r *IfStatReader) parseLine(line string) (IfStat, error) {
 	colon := strings.Index(line, ":")
 	if colon <= 0 {
 		return IfStat{}, fmt.Errorf("readifstats: unsupported format: %q", line)

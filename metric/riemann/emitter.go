@@ -1,13 +1,9 @@
 package riemann
 
-import "github.com/bigdatadev/goryman"
-
-// Event repesents riemann metric event.
-type Event struct {
-	Name string
-	// could be int, float32 or float64
-	Value interface{}
-}
+import (
+	"github.com/bigdatadev/goryman"
+	"github.com/bo0mer/yamt/metric"
+)
 
 type Option func(e *Emitter)
 
@@ -66,7 +62,7 @@ func NewEmitter(addr string, opts ...Option) *Emitter {
 }
 
 // Emit sends the specified event to riemann.
-func (e *Emitter) Emit(event Event) error {
+func (e *Emitter) Emit(event metric.Event) error {
 	if e.err != nil {
 		return e.err
 	}

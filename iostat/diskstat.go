@@ -8,7 +8,10 @@ import (
 	"github.com/bo0mer/yamt/internal"
 )
 
-type DiskStat struct {
+//go:generate counterfeiter . DeviceStatReader
+
+// DeviceStat represents statistics about IO device.
+type DeviceStat struct {
 	// Major device number.
 	Major int
 	// Minor device number.
@@ -49,30 +52,53 @@ type DiskStat struct {
 	WeightedIOTimeMS uint64
 }
 
-// ReadDiskStats reads statistics for all available disks.
-// It does so by reading from /proc/diskstats.
-func ReadDiskStats() ([]DiskStat, error) {
-	return readDiskStats("/proc/diskstats")
+// DeviceStatReader should read statistics for all available IO devices.
+type DeviceStatReader interface {
+	ReadStats() ([]DeviceStat, error)
 }
 
-func readDiskStats(path string) ([]DiskStat, error) {
-	data, err := ioutil.ReadFile(path)
+// DevStatReader reads statistics for IO devices.
+type DevStatReader struct {
+	path string
+}
+
+// NewDevStatReader creates DevStatReader that reads from the specified path.
+// It expects well defined format and may cause panics if it is not present.
+func NewDevStatReader(path string) *DevStatReader {
+	return &DevStatReader{
+		path: path,
+	}
+}
+
+// DefaultDevStatReader is the default implementation of DeviceStatReader.
+// It reads IO device statistics from /proc/diskstats
+var DefaultDevStatReader DeviceStatReader = NewDevStatReader("/proc/diskstats")
+
+// ReadDeviceStats is shorthand for DefaultDevStatReader.ReadDeviceStats.
+func ReadDeviceStats() ([]DeviceStat, error) {
+	return DefaultDevStatReader.ReadStats()
+}
+
+// ReadDeviceStats reads statistics for all available disks.
+// It does so by reading from /proc/diskstats.
+func (r *DevStatReader) ReadStats() ([]DeviceStat, error) {
+	data, err := ioutil.ReadFile(r.path)
 	if err != nil {
 		return nil, fmt.Errorf("readdiskstats: error reading from /proc/diskstats: %v", err)
 	}
-	return parseStats(data)
+	return r.parseStats(data)
 	return nil, nil
 }
 
-func parseStats(data []byte) ([]DiskStat, error) {
+func (r *DevStatReader) parseStats(data []byte) ([]DeviceStat, error) {
 	lines := strings.Split(string(data), "\n")
-	stats := make([]DiskStat, len(lines)-1)
+	stats := make([]DeviceStat, len(lines)-1)
 
 	for i, line := range lines {
 		if line == "" {
 			break
 		}
-		stat, err := parseLine(line)
+		stat, err := r.parseLine(line)
 		if err != nil {
 			return nil, fmt.Errorf("readidiskstats: error parsing line %d: %v", i, err)
 		}
@@ -81,11 +107,11 @@ func parseStats(data []byte) ([]DiskStat, error) {
 	return stats, nil
 }
 
-func parseLine(line string) (DiskStat, error) {
+func (r *DevStatReader) parseLine(line string) (DeviceStat, error) {
 	fields := strings.Fields(line)
 	p := &internal.ErrParser{}
 
-	stat := DiskStat{}
+	stat := DeviceStat{}
 	stat.Name = fields[2]
 
 	stat.Major = p.ParseInt(fields[0])
@@ -104,7 +130,7 @@ func parseLine(line string) (DiskStat, error) {
 	stat.WeightedIOTimeMS = p.ParseUint64(fields[13])
 
 	if err := p.Err(); err != nil {
-		return DiskStat{}, fmt.Errorf("readidiskstats: error reading stats for %s: %v", stat.Name, err)
+		return DeviceStat{}, fmt.Errorf("readidiskstats: error reading stats for %s: %v", stat.Name, err)
 	}
 
 	return stat, nil

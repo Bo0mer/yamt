@@ -1,15 +1,20 @@
-package netstat
+package netstat_test
 
-import "testing"
+import (
+	"testing"
 
-func TestParseStats(t *testing.T) {
-	stats, err := readIfStats("testdata/procNetDev")
+	"github.com/bo0mer/yamt/netstat"
+)
+
+func TestIfStatReader(t *testing.T) {
+	r := netstat.NewIfStatReader("testdata/procNetDev")
+	stats, err := r.ReadStats()
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	want := []IfStat{
-		IfStat{
+	want := []netstat.IfStat{
+		netstat.IfStat{
 			Name:         "eth0",
 			RxBytes:      15017954683,
 			RxPackets:    11623018,
@@ -21,7 +26,7 @@ func TestParseStats(t *testing.T) {
 			TxErrs:       288,
 			TxDrop:       289,
 		},
-		IfStat{
+		netstat.IfStat{
 			Name:         "lo",
 			RxBytes:      334946,
 			RxPackets:    1394,

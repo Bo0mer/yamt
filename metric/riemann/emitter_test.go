@@ -3,6 +3,8 @@ package riemann
 import (
 	"errors"
 	"testing"
+
+	"github.com/bo0mer/yamt/metric"
 )
 
 func TestPrefix(t *testing.T) {
@@ -52,7 +54,7 @@ func TestEmitDoesNothingOnErr(t *testing.T) {
 	e := &Emitter{
 		err: err,
 	}
-	actualErr := e.Emit(Event{})
+	actualErr := e.Emit(metric.Event{})
 	if err != actualErr {
 		t.Errorf("expected err %v, got %v\n", err, actualErr)
 	}

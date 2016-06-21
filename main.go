@@ -8,8 +8,9 @@ import (
 	"os/signal"
 	"regexp"
 	"syscall"
-	"time"
 
+	"github.com/bo0mer/yamt/iostat"
+	"github.com/bo0mer/yamt/metric"
 	"github.com/bo0mer/yamt/metric/riemann"
 	"github.com/bo0mer/yamt/netstat"
 )
@@ -19,7 +20,12 @@ var (
 	port      int
 	eventHost string
 	interval  int
+
+	net       bool
 	ignoreIfs string
+
+	disk          bool
+	ignoreDevices string
 )
 
 func init() {
@@ -31,27 +37,54 @@ func init() {
 	flag.StringVar(&eventHost, "event-host", "", "Event hostname")
 	flag.IntVar(&interval, "i", 5, "Seconds between updates (shorthand)")
 	flag.IntVar(&interval, "interval", 5, "Seconds between updates")
+
+	flag.BoolVar(&net, "net", false, "Report network interface metrics")
 	flag.StringVar(&ignoreIfs, "g", "lo", "Interfaces to ignore (shorthand)")
 	flag.StringVar(&ignoreIfs, "ignore-interfaces", "lo", "Interfaces to ignore")
+
+	flag.BoolVar(&disk, "disk", false, "Report disk metrics")
+	flag.StringVar(&ignoreDevices, "d", "ram|loop", "Devices to exclude")
+	flag.StringVar(&ignoreDevices, "ignore-devices", "ram|loop", "Devices to exclude")
 }
 
 func main() {
 	flag.Parse()
 
+	collectors := make([]metric.Collector, 0)
+	if net {
+		except, err := regexp.Compile(ignoreIfs)
+		if err != nil {
+			log.Fatalf("yamt: invalid network interface regexp: %v\n", err)
+		}
+		netCollector, err := netstat.NewIfStatCollector(netstat.DefaultIfStatReader, except)
+		if err != nil {
+			log.Fatalf("yamt: error creating interface stats collector: %v\n", err)
+		}
+		collectors = append(collectors, netCollector)
+		log.Printf("yamt: attached network interface stats collector")
+	}
+
+	if disk {
+		except, err := regexp.Compile(ignoreDevices)
+		if err != nil {
+			log.Fatalf("yamt: invalid io device regexp: %v\n", err)
+		}
+		ioCollector, err := iostat.NewDeviceStatCollector(iostat.DefaultDevStatReader, except)
+		if err != nil {
+			log.Fatalf("yamt: error creating io stats collector: %v\n", err)
+		}
+		collectors = append(collectors, ioCollector)
+		log.Printf("yamt: attached io device stats collector")
+	}
+
 	emitter := riemann.NewEmitter(fmt.Sprintf("%s:%d", host, port),
 		riemann.Host(eventHost))
 
-	re, err := regexp.Compile(ignoreIfs)
-	if err != nil {
-		log.Fatalf("yamt: invalid regular expression: %s\n", err)
-	}
-	r := netstat.NewReporter(emitter,
-		netstat.Interval(time.Second*time.Duration(interval)),
-		netstat.Except(re))
-	r.Start()
-	defer r.Close()
-	log.Printf("yamt: started emitting metrics\n")
+	reporter := metric.NewReporter(emitter, collectors)
+	reporter.Start()
+	defer reporter.Close()
 
+	log.Printf("yamt: started emitting metrics\n")
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	sig := <-c

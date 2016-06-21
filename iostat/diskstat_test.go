@@ -1,15 +1,20 @@
-package iostat
+package iostat_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/bo0mer/yamt/iostat"
+)
 
 func TestReadDiskgot(t *testing.T) {
-	got, err := readDiskStats("testdata/procDiskstats")
+	r := iostat.NewDevStatReader("testdata/procDiskstats")
+	got, err := r.ReadStats()
 	if err != nil {
 		t.Errorf("unexpected error: %v\n", err)
 	}
 
-	want := []DiskStat{
-		DiskStat{
+	want := []iostat.DeviceStat{
+		iostat.DeviceStat{
 			Name:             "sda",
 			Major:            8,
 			Minor:            0,
@@ -25,7 +30,7 @@ func TestReadDiskgot(t *testing.T) {
 			IOTimeMs:         24440,
 			WeightedIOTimeMS: 140248,
 		},
-		DiskStat{
+		iostat.DeviceStat{
 			Name:             "sda1",
 			Major:            8,
 			Minor:            1,
