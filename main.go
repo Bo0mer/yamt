@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"regexp"
 	"syscall"
+	"time"
 
 	"github.com/bo0mer/yamt/iostat"
 	"github.com/bo0mer/yamt/metric"
@@ -80,7 +81,8 @@ func main() {
 	emitter := riemann.NewEmitter(fmt.Sprintf("%s:%d", host, port),
 		riemann.Host(eventHost))
 
-	reporter := metric.NewReporter(emitter, collectors)
+	d := time.Duration(interval) * time.Second
+	reporter := metric.NewReporter(emitter, collectors, metric.Interval(d))
 	reporter.Start()
 	defer reporter.Close()
 
