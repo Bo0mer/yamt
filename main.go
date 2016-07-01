@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,10 +18,12 @@ import (
 )
 
 var (
-	host      string
-	port      int
-	eventHost string
-	interval  int
+	host       string
+	port       int
+	eventHost  string
+	interval   int
+	tags       arrayFlag
+	attributes mapFlag
 
 	net       bool
 	ignoreIfs string
@@ -38,6 +41,10 @@ func init() {
 	flag.StringVar(&eventHost, "event-host", "", "Event hostname")
 	flag.IntVar(&interval, "i", 5, "Seconds between updates (shorthand)")
 	flag.IntVar(&interval, "interval", 5, "Seconds between updates")
+	flag.Var(&tags, "t", "Tag to add to events (shorthand)")
+	flag.Var(&tags, "tag", "Tag to add to events")
+	flag.Var(&attributes, "a", "Attribute to add to the events (shorthand)")
+	flag.Var(&attributes, "attribute", "Attribute to add to the events")
 
 	flag.BoolVar(&net, "net", false, "Report network interface metrics")
 	flag.StringVar(&ignoreIfs, "g", "lo", "Interfaces to ignore (shorthand)")
@@ -79,7 +86,9 @@ func main() {
 	}
 
 	emitter := riemann.NewEmitter(fmt.Sprintf("%s:%d", host, port),
-		riemann.Host(eventHost))
+		riemann.Host(eventHost),
+		riemann.Tags(tags),
+		riemann.Attributes(attributes))
 
 	d := time.Duration(interval) * time.Second
 	reporter := metric.NewReporter(emitter, collectors, metric.Interval(d))
@@ -91,4 +100,35 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	sig := <-c
 	fmt.Printf("yamt: exiting due to %s\n", sig)
+}
+
+type arrayFlag []string
+
+func (a *arrayFlag) String() string {
+	return fmt.Sprintf("%v", *a)
+}
+
+func (a *arrayFlag) Set(value string) error {
+	*a = append(*a, value)
+	return nil
+}
+
+type mapFlag map[string]string
+
+func (m *mapFlag) String() string {
+	return fmt.Sprintf("%v", *m)
+}
+
+func (m *mapFlag) Set(value string) error {
+	if *m == nil {
+		*m = make(map[string]string)
+	}
+
+	kv := strings.Split(value, "=")
+	if len(kv) != 2 || len(kv[0]) == 0 || len(kv[1]) == 0 {
+		return fmt.Errorf("unsupported map flag format: %q", value)
+	}
+	key, value := kv[0], kv[1]
+	(*m)[key] = value
+	return nil
 }
