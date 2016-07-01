@@ -39,7 +39,6 @@ func Tags(tags []string) Option {
 type Emitter struct {
 	c           *goryman.GorymanClient
 	isConnected bool
-	err         error
 
 	prefix     string
 	host       string
@@ -63,31 +62,24 @@ func NewEmitter(addr string, opts ...Option) *Emitter {
 
 // Emit sends the specified event to riemann.
 func (e *Emitter) Emit(event metric.Event) error {
-	if e.err != nil {
-		return e.err
-	}
-
 	if !e.isConnected {
-		if e.err = e.c.Connect(); e.err != nil {
-			return e.err
+		if err := e.c.Connect(); err != nil {
+			return err
 		}
 		e.isConnected = true
 	}
 
-	e.err = e.c.SendEvent(&goryman.Event{
+	err := e.c.SendEvent(&goryman.Event{
 		Service:    prependPrefix(event.Name, e.prefix),
 		Metric:     event.Value,
 		Host:       e.host,
 		Attributes: e.attributes,
 		Tags:       e.tags,
 	})
-	return e.err
-}
-
-// Err reads and resets the last error occurred during emit.
-func (e *Emitter) Err() error {
-	err := e.err
-	e.err = nil
+	if err != nil {
+		e.c.Close()
+		e.isConnected = false
+	}
 	return err
 }
 

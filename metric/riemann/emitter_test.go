@@ -1,11 +1,6 @@
 package riemann
 
-import (
-	"errors"
-	"testing"
-
-	"github.com/bo0mer/yamt/metric"
-)
+import "testing"
 
 func TestPrefix(t *testing.T) {
 	prefix := "woho"
@@ -46,31 +41,6 @@ func TestTags(t *testing.T) {
 		if tag != e.tags[i] {
 			t.Errorf("expected tags %v, got %v\n", tags, e.tags)
 		}
-	}
-}
-
-func TestEmitDoesNothingOnErr(t *testing.T) {
-	err := errors.New("boom!")
-	e := &Emitter{
-		err: err,
-	}
-	actualErr := e.Emit(metric.Event{})
-	if err != actualErr {
-		t.Errorf("expected err %v, got %v\n", err, actualErr)
-	}
-}
-
-func TestErrResetsState(t *testing.T) {
-	err := errors.New("boom!")
-	e := &Emitter{
-		err: err,
-	}
-	actualErr := e.Err()
-	if err != actualErr {
-		t.Errorf("expected err %v, got %v\n", err, actualErr)
-	}
-	if e.err != nil {
-		t.Errorf("expected preserved error to be nil, got %v\n", e.err)
 	}
 }
 

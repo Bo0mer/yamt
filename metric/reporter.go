@@ -22,12 +22,8 @@ type Collector interface {
 
 // Emitter emits specified events.
 type Emitter interface {
-	// Emit should try to emit the specified event. If error occurrs, it
-	// should be persisted and no new emits should happen until the error is
-	// reset by call to Err.
+	// Emit should try to emit the specified event.
 	Emit(Event) error
-	// Err reads and resets the lat error occurred during emit.
-	Err() error
 }
 
 type Option func(*Reporter)

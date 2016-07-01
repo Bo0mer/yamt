@@ -16,12 +16,6 @@ type FakeEmitter struct {
 	emitReturns struct {
 		result1 error
 	}
-	ErrStub        func() error
-	errMutex       sync.RWMutex
-	errArgsForCall []struct{}
-	errReturns     struct {
-		result1 error
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -59,38 +53,11 @@ func (fake *FakeEmitter) EmitReturns(result1 error) {
 	}{result1}
 }
 
-func (fake *FakeEmitter) Err() error {
-	fake.errMutex.Lock()
-	fake.errArgsForCall = append(fake.errArgsForCall, struct{}{})
-	fake.recordInvocation("Err", []interface{}{})
-	fake.errMutex.Unlock()
-	if fake.ErrStub != nil {
-		return fake.ErrStub()
-	} else {
-		return fake.errReturns.result1
-	}
-}
-
-func (fake *FakeEmitter) ErrCallCount() int {
-	fake.errMutex.RLock()
-	defer fake.errMutex.RUnlock()
-	return len(fake.errArgsForCall)
-}
-
-func (fake *FakeEmitter) ErrReturns(result1 error) {
-	fake.ErrStub = nil
-	fake.errReturns = struct {
-		result1 error
-	}{result1}
-}
-
 func (fake *FakeEmitter) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.emitMutex.RLock()
 	defer fake.emitMutex.RUnlock()
-	fake.errMutex.RLock()
-	defer fake.errMutex.RUnlock()
 	return fake.invocations
 }
 
