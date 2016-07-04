@@ -13,7 +13,7 @@ func TestMap(t *testing.T) {
 		"goodbye": "moon",
 	}
 
-	var m flagvar.MapFlag
+	var m flagvar.Map
 	for wantK, wantV := range want {
 		err := m.Set(fmt.Sprintf("%s=%s", wantK, wantV))
 		if err != nil {

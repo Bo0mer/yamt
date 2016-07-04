@@ -5,13 +5,16 @@ import (
 	"strings"
 )
 
-type MapFlag map[string]string
+// Map represents map[string]string flag variable.
+type Map map[string]string
 
-func (m *MapFlag) String() string {
+func (m *Map) String() string {
 	return fmt.Sprintf("%v", *m)
 }
 
-func (m *MapFlag) Set(value string) error {
+// Set adds element to the map. It must be in key=value format, otherwise
+// error is returned.
+func (m *Map) Set(value string) error {
 	if *m == nil {
 		*m = make(map[string]string)
 	}
