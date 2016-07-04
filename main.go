@@ -7,10 +7,10 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
-	"strings"
 	"syscall"
 	"time"
 
+	"github.com/bo0mer/yamt/internal/flagvar"
 	"github.com/bo0mer/yamt/iostat"
 	"github.com/bo0mer/yamt/metric"
 	"github.com/bo0mer/yamt/metric/riemann"
@@ -22,8 +22,8 @@ var (
 	port       int
 	eventHost  string
 	interval   int
-	tags       arrayFlag
-	attributes mapFlag
+	tags       flagvar.Array
+	attributes flagvar.Map
 
 	net       bool
 	ignoreIfs string
@@ -100,35 +100,4 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	sig := <-c
 	fmt.Printf("yamt: exiting due to %s\n", sig)
-}
-
-type arrayFlag []string
-
-func (a *arrayFlag) String() string {
-	return fmt.Sprintf("%v", *a)
-}
-
-func (a *arrayFlag) Set(value string) error {
-	*a = append(*a, value)
-	return nil
-}
-
-type mapFlag map[string]string
-
-func (m *mapFlag) String() string {
-	return fmt.Sprintf("%v", *m)
-}
-
-func (m *mapFlag) Set(value string) error {
-	if *m == nil {
-		*m = make(map[string]string)
-	}
-
-	kv := strings.Split(value, "=")
-	if len(kv) != 2 || len(kv[0]) == 0 || len(kv[1]) == 0 {
-		return fmt.Errorf("unsupported map flag format: %q", value)
-	}
-	key, value := kv[0], kv[1]
-	(*m)[key] = value
-	return nil
 }
