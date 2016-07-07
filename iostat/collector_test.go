@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/bo0mer/yamt/iostat"
-	"github.com/bo0mer/yamt/iostat/iostatfakes"
-	"github.com/bo0mer/yamt/metric"
+	"github.com/Bo0mer/yamt/iostat"
+	"github.com/Bo0mer/yamt/iostat/iostatfakes"
+	"github.com/Bo0mer/yamt/metric"
 )
 
 // Test that *DeviceStatCollector implements metric.Collector

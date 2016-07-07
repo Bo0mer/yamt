@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/bo0mer/yamt/internal/flagvar"
+	"github.com/Bo0mer/yamt/internal/flagvar"
 )
 
 func TestMap(t *testing.T) {

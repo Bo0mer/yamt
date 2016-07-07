@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/bo0mer/yamt/internal"
+	"github.com/Bo0mer/yamt/internal"
 )
 
 //go:generate counterfeiter . DeviceStatReader

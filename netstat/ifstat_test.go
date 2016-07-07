@@ -3,7 +3,7 @@ package netstat_test
 import (
 	"testing"
 
-	"github.com/bo0mer/yamt/netstat"
+	"github.com/Bo0mer/yamt/netstat"
 )
 
 func TestIfStatReader(t *testing.T) {

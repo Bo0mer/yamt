@@ -4,7 +4,7 @@ package iostatfakes
 import (
 	"sync"
 
-	"github.com/bo0mer/yamt/iostat"
+	"github.com/Bo0mer/yamt/iostat"
 )
 
 type FakeDeviceStatReader struct {

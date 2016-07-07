@@ -5,9 +5,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/bo0mer/yamt/metric"
-	"github.com/bo0mer/yamt/netstat"
-	"github.com/bo0mer/yamt/netstat/netstatfakes"
+	"github.com/Bo0mer/yamt/metric"
+	"github.com/Bo0mer/yamt/netstat"
+	"github.com/Bo0mer/yamt/netstat/netstatfakes"
 )
 
 // Test that *IfStatCollector implements metric.Collector

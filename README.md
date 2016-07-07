@@ -1,4 +1,5 @@
 # yamt
+[![Build Status](https://travis-ci.org/Bo0mer/yamt.svg?branch=master)](https://travis-ci.org/Bo0mer/yamt)
 Yet another metric tool
 
 ## Installation
