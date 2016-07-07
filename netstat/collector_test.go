@@ -57,22 +57,22 @@ func newFakedReader(t *testing.T) netstat.InterfaceStatReader {
 
 func TestIfStatCollectorCollect(t *testing.T) {
 	want := []metric.Event{
-		metric.Event{Name: "eth0.rx.bytes", Value: 0.0},
-		metric.Event{Name: "eth0.rx.packets", Value: 0.0},
-		metric.Event{Name: "eth0.rx.errs", Value: 0.0},
-		metric.Event{Name: "eth0.rx.drop", Value: 0.0},
-		metric.Event{Name: "eth0.rx.fifo", Value: 0.0},
-		metric.Event{Name: "eth0.rx.frame", Value: 0.0},
-		metric.Event{Name: "eth0.rx.compressed", Value: 0.0},
-		metric.Event{Name: "eth0.rx.multicast", Value: 0.0},
+		metric.Event{Name: "eth0 rx bytes", Value: 0.0},
+		metric.Event{Name: "eth0 rx packets", Value: 0.0},
+		metric.Event{Name: "eth0 rx errs", Value: 0.0},
+		metric.Event{Name: "eth0 rx drop", Value: 0.0},
+		metric.Event{Name: "eth0 rx fifo", Value: 0.0},
+		metric.Event{Name: "eth0 rx frame", Value: 0.0},
+		metric.Event{Name: "eth0 rx compressed", Value: 0.0},
+		metric.Event{Name: "eth0 rx multicast", Value: 0.0},
 		metric.Event{}, // tx.bytes, handled separately
-		metric.Event{Name: "eth0.tx.packets", Value: 0.0},
-		metric.Event{Name: "eth0.tx.errs", Value: 0.0},
-		metric.Event{Name: "eth0.tx.drop", Value: 0.0},
-		metric.Event{Name: "eth0.tx.fifo", Value: 0.0},
-		metric.Event{Name: "eth0.tx.colls", Value: 0.0},
-		metric.Event{Name: "eth0.tx.carrier", Value: 0.0},
-		metric.Event{Name: "eth0.tx.compressed", Value: 0.0},
+		metric.Event{Name: "eth0 tx packets", Value: 0.0},
+		metric.Event{Name: "eth0 tx errs", Value: 0.0},
+		metric.Event{Name: "eth0 tx drop", Value: 0.0},
+		metric.Event{Name: "eth0 tx fifo", Value: 0.0},
+		metric.Event{Name: "eth0 tx colls", Value: 0.0},
+		metric.Event{Name: "eth0 tx carrier", Value: 0.0},
+		metric.Event{Name: "eth0 tx compressed", Value: 0.0},
 	}
 
 	reader := newFakedReader(t)
@@ -89,7 +89,7 @@ func TestIfStatCollectorCollect(t *testing.T) {
 	}
 
 	for i := range got {
-		if got[i].Name == ifName+".tx.bytes" {
+		if got[i].Name == ifName+" tx bytes" {
 			if f, ok := got[i].Value.(float64); !ok {
 				t.Errorf("expected flaot64 value, got %T\n", got[i].Value)
 			} else {
