@@ -85,6 +85,8 @@ func main() {
 		log.Printf("yamt: attached io device stats collector")
 	}
 
+	log.Printf("yamt: sticking tags to events: %v\n", tags)
+	log.Printf("yamt: sticking attributes to events: %v\n", attributes)
 	emitter := riemann.NewEmitter(fmt.Sprintf("%s:%d", host, port),
 		riemann.Host(eventHost),
 		riemann.Tags(tags),
