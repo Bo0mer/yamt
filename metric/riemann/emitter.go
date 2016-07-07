@@ -75,6 +75,7 @@ func (e *Emitter) Emit(event metric.Event) error {
 		Host:       e.host,
 		Attributes: e.attributes,
 		Tags:       e.tags,
+		State:      "ok",
 	})
 	if err != nil {
 		e.c.Close()
