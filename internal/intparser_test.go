@@ -3,7 +3,7 @@ package internal_test
 import (
 	"testing"
 
-	"github.com/bo0mer/yamt/internal"
+	"github.com/Bo0mer/yamt/internal"
 )
 
 func TestParsInt(t *testing.T) {

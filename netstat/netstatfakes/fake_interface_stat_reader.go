@@ -4,7 +4,7 @@ package netstatfakes
 import (
 	"sync"
 
-	"github.com/bo0mer/yamt/netstat"
+	"github.com/Bo0mer/yamt/netstat"
 )
 
 type FakeInterfaceStatReader struct {

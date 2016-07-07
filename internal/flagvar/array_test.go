@@ -3,7 +3,7 @@ package flagvar_test
 import (
 	"testing"
 
-	"github.com/bo0mer/yamt/internal/flagvar"
+	"github.com/Bo0mer/yamt/internal/flagvar"
 )
 
 func TestArray(t *testing.T) {

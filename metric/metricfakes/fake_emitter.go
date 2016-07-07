@@ -4,7 +4,7 @@ package metricfakes
 import (
 	"sync"
 
-	"github.com/bo0mer/yamt/metric"
+	"github.com/Bo0mer/yamt/metric"
 )
 
 type FakeEmitter struct {

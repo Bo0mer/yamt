@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/bo0mer/yamt/internal"
-	"github.com/bo0mer/yamt/metric"
+	"github.com/Bo0mer/yamt/internal"
+	"github.com/Bo0mer/yamt/metric"
 )
 
 type state map[string]DeviceStat

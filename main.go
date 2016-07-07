@@ -10,11 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bo0mer/yamt/internal/flagvar"
-	"github.com/bo0mer/yamt/iostat"
-	"github.com/bo0mer/yamt/metric"
-	"github.com/bo0mer/yamt/metric/riemann"
-	"github.com/bo0mer/yamt/netstat"
+	"github.com/Bo0mer/yamt/internal/flagvar"
+	"github.com/Bo0mer/yamt/iostat"
+	"github.com/Bo0mer/yamt/metric"
+	"github.com/Bo0mer/yamt/metric/riemann"
+	"github.com/Bo0mer/yamt/netstat"
 )
 
 var (

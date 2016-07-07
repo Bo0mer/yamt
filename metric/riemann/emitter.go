@@ -1,8 +1,8 @@
 package riemann
 
 import (
+	"github.com/Bo0mer/yamt/metric"
 	"github.com/bigdatadev/goryman"
-	"github.com/bo0mer/yamt/metric"
 )
 
 type Option func(e *Emitter)

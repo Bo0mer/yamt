@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bo0mer/yamt/metric"
-	"github.com/bo0mer/yamt/metric/metricfakes"
+	"github.com/Bo0mer/yamt/metric"
+	"github.com/Bo0mer/yamt/metric/metricfakes"
 )
 
 func TestReporter(t *testing.T) {
