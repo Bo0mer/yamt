@@ -63,17 +63,17 @@ func newFakedReader(t *testing.T) iostat.DeviceStatReader {
 
 func TestDevStatCollectorCollect(t *testing.T) {
 	want := []metric.Event{
-		metric.Event{}, // reads.total, handled separately
-		metric.Event{Name: "sda.1.0.reads.merged", Value: 0.0},
-		metric.Event{Name: "sda.1.0.reads.sectors", Value: 0.0},
-		metric.Event{Name: "sda.1.0.reads.time.ms", Value: 0.0},
-		metric.Event{Name: "sda.1.0.writes.total", Value: 0.0},
-		metric.Event{Name: "sda.1.0.writes.merged", Value: 0.0},
-		metric.Event{Name: "sda.1.0.writes.sectors", Value: 0.0},
-		metric.Event{Name: "sda.1.0.writes.time.ms", Value: 0.0},
-		metric.Event{Name: "sda.1.0.io.inflight", Value: 42.0},
-		metric.Event{Name: "sda.1.0.io.time.ms", Value: 0.0},
-		metric.Event{Name: "sda.1.0.io.weighted.ms", Value: 0.0},
+		metric.Event{}, // reads total, handled separately
+		metric.Event{Name: "sda reads merged", Value: 0.0},
+		metric.Event{Name: "sda reads sectors", Value: 0.0},
+		metric.Event{Name: "sda reads time(ms)", Value: 0.0},
+		metric.Event{Name: "sda writes total", Value: 0.0},
+		metric.Event{Name: "sda writes merged", Value: 0.0},
+		metric.Event{Name: "sda writes sectors", Value: 0.0},
+		metric.Event{Name: "sda writes time(ms)", Value: 0.0},
+		metric.Event{Name: "sda io inflight", Value: 42.0},
+		metric.Event{Name: "sda io time(ms)", Value: 0.0},
+		metric.Event{Name: "sda io weighted(ms)", Value: 0.0},
 	}
 
 	reader := newFakedReader(t)
@@ -91,7 +91,7 @@ func TestDevStatCollectorCollect(t *testing.T) {
 	}
 
 	for i := range got {
-		if got[i].Name == "sda.1.0.reads.total" {
+		if got[i].Name == "sda reads total" {
 			if f, ok := got[i].Value.(float64); !ok {
 				t.Errorf("expected float64 value, got %T\n", got[i].Value)
 			} else {

@@ -82,30 +82,30 @@ func (c *DeviceStatCollector) getState() (state, error) {
 
 func (c *DeviceStatCollector) buildEvents(actual, last DeviceStat, interval float64) []metric.Event {
 	events := make([]metric.Event, 0)
-	event := eventBuilder(actual.Name, actual.Major, actual.Minor)
+	event := eventBuilder(actual.Name)
 	rate := internal.RateComputer(interval)
 
-	events = append(events, event("reads.total", rate(actual.Reads, last.Reads)))
-	events = append(events, event("reads.merged", rate(actual.ReadsMerged, last.ReadsMerged)))
-	events = append(events, event("reads.sectors", rate(actual.ReadsSectors, last.ReadsSectors)))
-	events = append(events, event("reads.time.ms", rate(actual.ReadsTimeMs, last.ReadsTimeMs)))
+	events = append(events, event("reads total", rate(actual.Reads, last.Reads)))
+	events = append(events, event("reads merged", rate(actual.ReadsMerged, last.ReadsMerged)))
+	events = append(events, event("reads sectors", rate(actual.ReadsSectors, last.ReadsSectors)))
+	events = append(events, event("reads time(ms)", rate(actual.ReadsTimeMs, last.ReadsTimeMs)))
 
-	events = append(events, event("writes.total", rate(actual.Writes, last.Writes)))
-	events = append(events, event("writes.merged", rate(actual.WritesMerged, last.WritesMerged)))
-	events = append(events, event("writes.sectors", rate(actual.WritesSectors, last.WritesSectors)))
-	events = append(events, event("writes.time.ms", rate(actual.WritesTimeMs, last.WritesTimeMs)))
+	events = append(events, event("writes total", rate(actual.Writes, last.Writes)))
+	events = append(events, event("writes merged", rate(actual.WritesMerged, last.WritesMerged)))
+	events = append(events, event("writes sectors", rate(actual.WritesSectors, last.WritesSectors)))
+	events = append(events, event("writes time(ms)", rate(actual.WritesTimeMs, last.WritesTimeMs)))
 
-	events = append(events, event("io.inflight", float64(actual.InFlight)))
-	events = append(events, event("io.time.ms", rate(actual.IOTimeMs, last.IOTimeMs)))
-	events = append(events, event("io.weighted.ms", rate(actual.WeightedIOTimeMS, last.WeightedIOTimeMS)))
+	events = append(events, event("io inflight", float64(actual.InFlight)))
+	events = append(events, event("io time(ms)", rate(actual.IOTimeMs, last.IOTimeMs)))
+	events = append(events, event("io weighted(ms)", rate(actual.WeightedIOTimeMS, last.WeightedIOTimeMS)))
 
 	return events
 }
 
-func eventBuilder(devName string, major, minor int) func(string, float64) metric.Event {
+func eventBuilder(devName string) func(string, float64) metric.Event {
 	return func(name string, value float64) metric.Event {
 		return metric.Event{
-			Name:  fmt.Sprintf("%s.%d.%d.%s", devName, major, minor, name),
+			Name:  devName + " " + name,
 			Value: value,
 		}
 	}
